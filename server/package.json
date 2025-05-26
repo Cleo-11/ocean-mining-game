@@ -1,0 +1,19 @@
+{
+  "name": "ocean-mining-server",
+  "version": "1.0.0",
+  "description": "Multiplayer server for Ocean Mining game",
+  "main": "resource-server.js",
+  "scripts": {
+    "start": "node resource-server.js",
+    "dev": "node resource-server.js",
+    "build": "echo 'No build step required'"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  }
+}
