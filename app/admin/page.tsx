@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { ServiceStatus } from "@/components/service-status"
+<<<<<<< HEAD
 import { DebugEnv } from "@/components/debug-env"
+=======
+>>>>>>> ba7937c81170947343fcf8fd889dd9363e8af04e
 import { validateAdminKey, getDefaultAdminKey } from "@/lib/admin-config"
 
 export default function AdminPage() {
@@ -63,11 +66,14 @@ export default function AdminPage() {
           )}
         </div>
 
+<<<<<<< HEAD
         {/* Debug Section - Always Show */}
         <div className="mb-6">
           <DebugEnv />
         </div>
 
+=======
+>>>>>>> ba7937c81170947343fcf8fd889dd9363e8af04e
         {!isAuthenticated ? (
           <div className="space-y-6">
             <div className="rounded-lg bg-slate-800 p-6 shadow-lg">
@@ -115,6 +121,33 @@ export default function AdminPage() {
                 )}
               </div>
             </div>
+<<<<<<< HEAD
+=======
+
+            <div className="rounded-lg bg-slate-800 p-6 shadow-lg">
+              <h3 className="text-lg font-bold text-slate-200 mb-3">🔐 Admin Key Options</h3>
+              <div className="space-y-3 text-sm text-slate-300">
+                <div className="bg-slate-700 p-3 rounded">
+                  <strong className="text-cyan-400">Option 1: Default Key</strong>
+                  <p>
+                    Use the default key: <code className="bg-slate-800 px-1 rounded">ocean-mining-admin-2024</code>
+                  </p>
+                </div>
+                <div className="bg-slate-700 p-3 rounded">
+                  <strong className="text-cyan-400">Option 2: Environment Variable</strong>
+                  <p>
+                    Set <code className="bg-slate-800 px-1 rounded">ADMIN_SECRET_KEY</code> in your environment
+                  </p>
+                </div>
+                <div className="bg-slate-700 p-3 rounded">
+                  <strong className="text-cyan-400">Option 3: Public Admin Key</strong>
+                  <p>
+                    Set <code className="bg-slate-800 px-1 rounded">NEXT_PUBLIC_ADMIN_KEY</code> for client-side access
+                  </p>
+                </div>
+              </div>
+            </div>
+>>>>>>> ba7937c81170947343fcf8fd889dd9363e8af04e
           </div>
         ) : (
           <div className="space-y-6">
@@ -159,6 +192,68 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
+<<<<<<< HEAD
+=======
+
+            <div className="rounded-lg bg-slate-800 p-6 shadow-lg">
+              <h2 className="mb-4 text-xl font-bold text-slate-200">Setup Instructions</h2>
+              <div className="space-y-3 text-sm text-slate-300">
+                <div className="rounded-md bg-slate-700 p-3">
+                  <h3 className="font-bold text-cyan-400">1. Moralis Setup</h3>
+                  <p>
+                    Visit{" "}
+                    <a
+                      href="https://moralis.io"
+                      className="text-cyan-400 hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      moralis.io
+                    </a>{" "}
+                    and create an account
+                  </p>
+                  <p>Create a new project and copy your API key</p>
+                  <p>
+                    Add to your environment variables:{" "}
+                    <code className="bg-slate-800 px-1 rounded">NEXT_PUBLIC_MORALIS_API_KEY</code>
+                  </p>
+                </div>
+
+                <div className="rounded-md bg-slate-700 p-3">
+                  <h3 className="font-bold text-cyan-400">2. Supabase Setup</h3>
+                  <p>
+                    Visit{" "}
+                    <a
+                      href="https://supabase.com"
+                      className="text-cyan-400 hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      supabase.com
+                    </a>{" "}
+                    and create an account
+                  </p>
+                  <p>Create a new project and get your URL and anon key</p>
+                  <p>Add to your environment variables:</p>
+                  <code className="block mt-1 p-2 bg-slate-800 rounded text-xs">
+                    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+                    <br />
+                    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+                    <br />
+                    SUPABASE_SERVICE_KEY=your_supabase_service_key
+                  </code>
+                </div>
+
+                <div className="rounded-md bg-slate-700 p-3">
+                  <h3 className="font-bold text-cyan-400">3. Secure Admin Access</h3>
+                  <p>For production, set a custom admin key:</p>
+                  <code className="block mt-1 p-2 bg-slate-800 rounded text-xs">
+                    ADMIN_SECRET_KEY=your_secure_admin_key_here
+                  </code>
+                </div>
+              </div>
+            </div>
+>>>>>>> ba7937c81170947343fcf8fd889dd9363e8af04e
           </div>
         )}
       </div>
