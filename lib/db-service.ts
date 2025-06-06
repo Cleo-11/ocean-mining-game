@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import { initializeMoralis, isMoralisInitialized, getMoralisApiKey } from "./moralis-config"
 import { createSupabaseClient, isSupabaseConfigured, getSupabaseConfig } from "./supabase-config"
 import { supabaseService } from "./supabase-service"
@@ -90,12 +90,11 @@ export async function createUser(userData: any) {
     throw new Error("Supabase not available")
   } catch (error) {
     console.error("Failed to create user:", error)
->>>>>>> ba7937c81170947343fcf8fd889dd9363e8af04e
     throw error
   }
 }
 
-<<<<<<< HEAD
+
 export async function getServiceStatus() {
   try {
     const moralisAvailable = !!(getMoralisApiKey() && isMoralisInitialized())
@@ -261,12 +260,11 @@ export async function getActiveGameSessions() {
     return []
   } catch (error) {
     console.error("Failed to get active game sessions:", error)
->>>>>>> ba7937c81170947343fcf8fd889dd9363e8af04e
     return []
   }
 }
 
-<<<<<<< HEAD
+
 export async function createGameSession(walletAddress: string): Promise<string> {
   try {
     if (isSupabaseConfigured()) {
@@ -370,6 +368,6 @@ export async function streamGameEvents(callback: (data: any) => void) {
   } catch (error) {
     console.error("Failed to stream game events:", error)
     return () => {}
->>>>>>> ba7937c81170947343fcf8fd889dd9363e8af04e
+
   }
 }
