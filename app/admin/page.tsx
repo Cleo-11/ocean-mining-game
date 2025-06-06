@@ -1,0 +1,167 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { ServiceStatus } from "@/components/service-status"
+import { DebugEnv } from "@/components/debug-env"
+import { validateAdminKey, getDefaultAdminKey } from "@/lib/admin-config"
+
+export default function AdminPage() {
+  const [adminKey, setAdminKey] = useState("")
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [authError, setAuthError] = useState("")
+  const [showDefaultKey, setShowDefaultKey] = useState(false)
+
+  const handleAuthenticate = async () => {
+    if (!adminKey) {
+      setAuthError("Please enter the admin key")
+      return
+    }
+
+    try {
+      const isValid = validateAdminKey(adminKey)
+      if (isValid) {
+        setIsAuthenticated(true)
+        setAuthError("")
+        localStorage.setItem("admin-authenticated", "true")
+      } else {
+        setAuthError("Invalid admin key")
+      }
+    } catch (error) {
+      setAuthError("Authentication failed")
+      console.error("Auth error:", error)
+    }
+  }
+
+  const handleLogout = () => {
+    setIsAuthenticated(false)
+    setAdminKey("")
+    localStorage.removeItem("admin-authenticated")
+  }
+
+  // Check if already authenticated
+  useEffect(() => {
+    const isAuth = localStorage.getItem("admin-authenticated")
+    if (isAuth === "true") {
+      setIsAuthenticated(true)
+    }
+  }, [])
+
+  const defaultKey = getDefaultAdminKey()
+
+  return (
+    <div className="min-h-screen bg-slate-900 p-8">
+      <div className="mx-auto max-w-2xl">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold text-cyan-400">Ocean Mining Admin</h1>
+          {isAuthenticated && (
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              Logout
+            </button>
+          )}
+        </div>
+
+        {/* Debug Section - Always Show */}
+        <div className="mb-6">
+          <DebugEnv />
+        </div>
+
+        {!isAuthenticated ? (
+          <div className="space-y-6">
+            <div className="rounded-lg bg-slate-800 p-6 shadow-lg">
+              <h2 className="mb-4 text-xl font-bold text-slate-200">Authentication Required</h2>
+
+              <div className="mb-4">
+                <label className="mb-2 block text-sm font-medium text-slate-300">Admin Key</label>
+                <input
+                  type="password"
+                  value={adminKey}
+                  onChange={(e) => setAdminKey(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleAuthenticate()}
+                  className="w-full rounded-lg bg-slate-700 px-4 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  placeholder="Enter admin key"
+                />
+                {authError && <p className="mt-2 text-sm text-red-400">{authError}</p>}
+              </div>
+
+              <button
+                onClick={handleAuthenticate}
+                className="w-full rounded-lg bg-gradient-to-r from-teal-600 to-cyan-700 py-2 font-medium text-white shadow-md transition-all hover:shadow-lg mb-4"
+              >
+                Authenticate
+              </button>
+
+              <div className="border-t border-slate-700 pt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-slate-400">Need the admin key?</span>
+                  <button
+                    onClick={() => setShowDefaultKey(!showDefaultKey)}
+                    className="text-xs text-cyan-400 hover:underline"
+                  >
+                    {showDefaultKey ? "Hide" : "Show"} Default Key
+                  </button>
+                </div>
+
+                {showDefaultKey && (
+                  <div className="bg-slate-700 p-3 rounded-lg">
+                    <p className="text-xs text-slate-300 mb-2">Default Admin Key:</p>
+                    <code className="text-sm text-cyan-400 bg-slate-800 px-2 py-1 rounded">{defaultKey}</code>
+                    <p className="text-xs text-slate-400 mt-2">
+                      💡 In production, set ADMIN_SECRET_KEY environment variable
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="rounded-lg bg-green-900/20 border border-green-500/30 p-4">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-green-400 font-medium">Admin Access Granted</span>
+              </div>
+            </div>
+
+            <div className="rounded-lg bg-slate-800 p-6 shadow-lg">
+              <h2 className="mb-4 text-xl font-bold text-slate-200">Service Status</h2>
+              <ServiceStatus />
+            </div>
+
+            <div className="rounded-lg bg-slate-800 p-6 shadow-lg">
+              <h2 className="mb-4 text-xl font-bold text-slate-200">Environment Variables</h2>
+              <div className="space-y-2">
+                <div className="rounded-md bg-slate-700 p-3">
+                  <div className="text-sm font-medium text-cyan-400">NEXT_PUBLIC_MORALIS_API_KEY</div>
+                  <div className="mt-1 text-xs text-slate-300">
+                    {process.env.NEXT_PUBLIC_MORALIS_API_KEY ? "✅ Set" : "❌ Not set"}
+                  </div>
+                </div>
+                <div className="rounded-md bg-slate-700 p-3">
+                  <div className="text-sm font-medium text-cyan-400">NEXT_PUBLIC_SUPABASE_URL</div>
+                  <div className="mt-1 text-xs text-slate-300">
+                    {process.env.NEXT_PUBLIC_SUPABASE_URL ? "✅ Set" : "❌ Not set"}
+                  </div>
+                </div>
+                <div className="rounded-md bg-slate-700 p-3">
+                  <div className="text-sm font-medium text-cyan-400">NEXT_PUBLIC_SUPABASE_ANON_KEY</div>
+                  <div className="mt-1 text-xs text-slate-300">
+                    {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "✅ Set" : "❌ Not set"}
+                  </div>
+                </div>
+                <div className="rounded-md bg-slate-700 p-3">
+                  <div className="text-sm font-medium text-cyan-400">ADMIN_SECRET_KEY</div>
+                  <div className="mt-1 text-xs text-slate-300">
+                    {process.env.ADMIN_SECRET_KEY ? "✅ Set (Custom)" : "⚠️ Using Default"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
