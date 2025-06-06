@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { ServiceStatus } from "@/components/service-status"
-<<<<<<< HEAD
+
 import { DebugEnv } from "@/components/debug-env"
-=======
->>>>>>> ba7937c81170947343fcf8fd889dd9363e8af04e
+
+
 import { validateAdminKey, getDefaultAdminKey } from "@/lib/admin-config"
 
 export default function AdminPage() {
@@ -66,14 +66,13 @@ export default function AdminPage() {
           )}
         </div>
 
-<<<<<<< HEAD
+
         {/* Debug Section - Always Show */}
         <div className="mb-6">
           <DebugEnv />
         </div>
 
-=======
->>>>>>> ba7937c81170947343fcf8fd889dd9363e8af04e
+
         {!isAuthenticated ? (
           <div className="space-y-6">
             <div className="rounded-lg bg-slate-800 p-6 shadow-lg">
@@ -121,8 +120,7 @@ export default function AdminPage() {
                 )}
               </div>
             </div>
-<<<<<<< HEAD
-=======
+
 
             <div className="rounded-lg bg-slate-800 p-6 shadow-lg">
               <h3 className="text-lg font-bold text-slate-200 mb-3">🔐 Admin Key Options</h3>
@@ -147,7 +145,7 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
->>>>>>> ba7937c81170947343fcf8fd889dd9363e8af04e
+
           </div>
         ) : (
           <div className="space-y-6">
@@ -192,8 +190,7 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
-<<<<<<< HEAD
-=======
+
 
             <div className="rounded-lg bg-slate-800 p-6 shadow-lg">
               <h2 className="mb-4 text-xl font-bold text-slate-200">Setup Instructions</h2>
@@ -253,7 +250,6 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
->>>>>>> ba7937c81170947343fcf8fd889dd9363e8af04e
           </div>
         )}
       </div>

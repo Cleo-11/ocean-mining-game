@@ -27,7 +27,6 @@ export async function initializeServices() {
     } else {
       console.warn("⚠️ Moralis API key not configured")
     }
-
     // Test Supabase connection
     if (isSupabaseConfigured()) {
       try {
@@ -41,12 +40,12 @@ export async function initializeServices() {
     } else {
       console.warn("⚠️ Supabase not configured")
     }
-
+  
     servicesInitialized = true
     console.log("🎉 Services initialization complete")
   } catch (error) {
     console.error("❌ Failed to initialize services:", error)
-=======
+  }
 // This file serves as a unified interface for database operations
 // It will use Supabase for persistent storage and Moralis for Web3 functionality
 
@@ -183,7 +182,7 @@ export async function getLeaderboard(type = "total_resources", limit = 10): Prom
     }
   } catch (error) {
     console.error("Failed to get leaderboard:", error)
-=======
+  }
 export async function updateUser(walletAddress: string, updateData: any) {
   try {
     const supabaseAvailable = await isSupabaseAvailable()
@@ -287,7 +286,7 @@ export async function endGameSession(sessionId: string, stats: any): Promise<voi
     // For localStorage mode, we don't persist session data
   } catch (error) {
     console.error("Failed to end game session:", error)
-=======
+  }
 // Leaderboard operations
 export async function getLeaderboard(category: string, period: string) {
   try {
