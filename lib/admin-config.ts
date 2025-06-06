@@ -1,17 +1,12 @@
-
 // ✅ Capture env vars at build time
 const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY
 const NEXT_PUBLIC_ADMIN_KEY = process.env.NEXT_PUBLIC_ADMIN_KEY
-
 const DEFAULT_ADMIN_KEY = "ocean-mining-admin-2024"
 
-// Simple admin key configuration
-// In production, use a proper authentication system
-
 const ADMIN_KEYS = [
-  process.env.ADMIN_SECRET_KEY,
-  process.env.NEXT_PUBLIC_ADMIN_KEY,
-  "ocean-mining-admin-2024", // Default fallback key
+  ADMIN_SECRET_KEY,
+  NEXT_PUBLIC_ADMIN_KEY,
+  DEFAULT_ADMIN_KEY, // Default fallback key
 ]
 
 export function validateAdminKey(inputKey: string): boolean {
@@ -19,22 +14,8 @@ export function validateAdminKey(inputKey: string): boolean {
     return false
   }
 
-
-  // Check against custom admin keys
-  if (ADMIN_SECRET_KEY && inputKey === ADMIN_SECRET_KEY) {
-    return true
-  }
-
-  if (NEXT_PUBLIC_ADMIN_KEY && inputKey === NEXT_PUBLIC_ADMIN_KEY) {
-    return true
-  }
-
-  // Check against default key
-  if (inputKey === DEFAULT_ADMIN_KEY) {
-    return true
-  }
-
-  return false
+  // Check against configured admin keys
+  return ADMIN_KEYS.some((key) => key && key === inputKey)
 }
 
 export function getDefaultAdminKey(): string {
@@ -45,14 +26,8 @@ export function getAdminConfig() {
   return {
     hasCustomKey: !!(ADMIN_SECRET_KEY || NEXT_PUBLIC_ADMIN_KEY),
     defaultKey: DEFAULT_ADMIN_KEY,
+    availableKeys: ADMIN_KEYS.filter(Boolean).length,
   }
-
-  // Check against configured admin keys
-  return ADMIN_KEYS.some((key) => key && key === inputKey)
-}
-
-export function getDefaultAdminKey(): string {
-  return process.env.ADMIN_SECRET_KEY || process.env.NEXT_PUBLIC_ADMIN_KEY || "ocean-mining-admin-2024"
 }
 
 export function generateAdminKey(): string {
@@ -62,5 +37,4 @@ export function generateAdminKey(): string {
     result += chars.charAt(Math.floor(Math.random() * chars.length))
   }
   return result
-
 }
