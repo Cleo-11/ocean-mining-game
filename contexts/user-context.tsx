@@ -1,8 +1,12 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { initializeMoralis } from "@/lib/moralis-config"
-import { getServiceStatus, getPlayerProgress, updatePlayerProgress as updatePlayerProgressDB } from "@/lib/db-service"
+import {
+  initializeServices,
+  getServiceStatus,
+  getPlayerProgress,
+  updatePlayerProgress as updatePlayerProgressDB,
+} from "@/lib/db-service"
 
 interface User {
   walletAddress: string
@@ -29,8 +33,8 @@ interface PlayerProgress {
 }
 
 interface ServiceStatus {
-  supabase: boolean
   moralis: boolean
+  supabase: boolean
   usingLocalStorage: boolean
 }
 
@@ -52,42 +56,35 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [playerProgress, setPlayerProgress] = useState<PlayerProgress | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [serviceStatus, setServiceStatus] = useState<ServiceStatus>({
-    supabase: false,
     moralis: false,
+    supabase: false,
     usingLocalStorage: true,
   })
   const [token, setToken] = useState<string | null>(null)
 
-  // Initialize services on mount
   useEffect(() => {
-    const initServices = async () => {
+    const initializeApp = async () => {
       try {
-        // Try to initialize Moralis
-        try {
-          await initializeMoralis()
-        } catch (error) {
-          console.warn("⚠️ Moralis initialization failed:", error)
-        }
+        console.log("🚀 Initializing app services...")
 
-        // Check service status
+        // Initialize services
+        await initializeServices()
+
+        // Get service status
         const status = await getServiceStatus()
         setServiceStatus(status)
 
-        console.log("🔌 Service status:", status)
+        console.log("✅ App initialization complete", status)
       } catch (error) {
-        console.error("Failed to initialize services:", error)
-        setServiceStatus({
-          supabase: false,
-          moralis: false,
-          usingLocalStorage: true,
-        })
+        console.error("❌ Failed to initialize app:", error)
+      } finally {
+        setIsLoading(false)
       }
     }
 
-    initServices()
+    initializeApp()
   }, [])
 
-  // Check for existing session on mount
   useEffect(() => {
     const storedToken = localStorage.getItem("oceanMiningToken")
     const storedUser = localStorage.getItem("oceanMiningUser")
@@ -118,7 +115,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, [serviceStatus])
 
-  // Fetch player progress from database
   const fetchPlayerProgress = async (walletAddress: string): Promise<boolean> => {
     if (serviceStatus.usingLocalStorage) return false
 
@@ -135,7 +131,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Login function with wallet signature
   const login = async (username: string) => {
     setIsLoading(true)
 
@@ -238,7 +233,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  // Logout function
   const logout = () => {
     setUser(null)
     setPlayerProgress(null)
@@ -248,7 +242,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("oceanMiningProgress")
   }
 
-  // Update player progress
   const updatePlayerProgress = async (data: Partial<PlayerProgress>) => {
     if (!user) return
 

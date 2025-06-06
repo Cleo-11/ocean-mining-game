@@ -5,12 +5,12 @@ import { getServiceStatus } from "@/lib/db-service"
 
 export function ServiceStatus() {
   const [status, setStatus] = useState<{
-    supabase: boolean
     moralis: boolean
+    supabase: boolean
     usingLocalStorage: boolean
   }>({
-    supabase: false,
     moralis: false,
+    supabase: false,
     usingLocalStorage: true,
   })
 
