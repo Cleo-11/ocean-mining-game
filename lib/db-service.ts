@@ -1,10 +1,8 @@
 // This file serves as a unified interface for database operations
 // It will use Supabase for persistent storage and Moralis for Web3 functionality
 
-import { initializeMoralis, isMoralisInitialized, getMoralisApiKey } from "./moralis-config"
+import { initializeMoralis, isMoralisInitialized, isMoralisConfigured } from "./moralis-config"
 import { createSupabaseClient, isSupabaseConfigured, getSupabaseConfig } from "./supabase-config"
-import * as supabaseService from "./supabase-service"
-import type { Player, LeaderboardEntry } from "./types"
 
 // ✅ Capture env vars at build time
 const FRONTEND_URL = process.env.FRONTEND_URL || process.env.NEXT_PUBLIC_RESOURCE_SERVER_URL
@@ -19,7 +17,7 @@ export async function initializeServices() {
     console.log("🚀 Initializing services...")
 
     // Initialize Moralis
-    if (getMoralisApiKey()) {
+    if (isMoralisConfigured()) {
       try {
         await initializeMoralis()
         console.log("✅ Moralis service initialized")
@@ -54,7 +52,7 @@ export async function initializeServices() {
 
 export async function getServiceStatus() {
   try {
-    const moralisAvailable = !!(getMoralisApiKey() && isMoralisInitialized())
+    const moralisAvailable = isMoralisConfigured() && isMoralisInitialized()
     const supabaseAvailable = isSupabaseConfigured()
 
     let supabaseConnected = false
@@ -75,7 +73,7 @@ export async function getServiceStatus() {
       supabase: supabaseConnected,
       usingLocalStorage,
       config: {
-        moralisApiKey: !!getMoralisApiKey(),
+        moralisApiKey: isMoralisConfigured(),
         supabaseUrl: !!getSupabaseConfig().url,
         frontendUrl: !!FRONTEND_URL,
         multiplayerUrl: !!MULTIPLAYER_SERVER_URL,
@@ -97,11 +95,47 @@ export async function getServiceStatus() {
   }
 }
 
+// Simple player data structure for localStorage fallback
+interface PlayerData {
+  walletAddress: string
+  username?: string
+  currentTier: number
+  selectedSubmarine: number
+  purchasedSubmarines: number[]
+  resources: {
+    nickel: number
+    cobalt: number
+    copper: number
+    manganese: number
+  }
+  balance: number
+  playerStats: any
+  position: {
+    x: number
+    y: number
+    rotation: number
+  }
+  lastSaved?: Date
+}
+
 // Player management functions
-export async function savePlayer(player: Player): Promise<void> {
+export async function savePlayer(player: PlayerData): Promise<void> {
   try {
     if (isSupabaseConfigured()) {
-      await supabaseService.savePlayer(player)
+      const supabase = createSupabaseClient()
+      const { error } = await supabase.from("player_progress").upsert({
+        wallet_address: player.walletAddress,
+        current_tier: player.currentTier,
+        selected_submarine: player.selectedSubmarine,
+        purchased_submarines: player.purchasedSubmarines,
+        resources: player.resources,
+        balance: player.balance,
+        player_stats: player.playerStats,
+        position: player.position,
+        last_saved: new Date().toISOString(),
+      })
+
+      if (error) throw error
     } else {
       // Fallback to localStorage
       localStorage.setItem(`player_${player.walletAddress}`, JSON.stringify(player))
@@ -113,10 +147,31 @@ export async function savePlayer(player: Player): Promise<void> {
   }
 }
 
-export async function getPlayer(walletAddress: string): Promise<Player | null> {
+export async function getPlayer(walletAddress: string): Promise<PlayerData | null> {
   try {
     if (isSupabaseConfigured()) {
-      return await supabaseService.getPlayer(walletAddress)
+      const supabase = createSupabaseClient()
+      const { data, error } = await supabase
+        .from("player_progress")
+        .select("*")
+        .eq("wallet_address", walletAddress)
+        .single()
+
+      if (error) throw error
+
+      if (data) {
+        return {
+          walletAddress: data.wallet_address,
+          currentTier: data.current_tier,
+          selectedSubmarine: data.selected_submarine,
+          purchasedSubmarines: data.purchased_submarines,
+          resources: data.resources,
+          balance: data.balance,
+          playerStats: data.player_stats,
+          position: data.position,
+          lastSaved: data.last_saved,
+        }
+      }
     } else {
       // Fallback to localStorage
       const stored = localStorage.getItem(`player_${walletAddress}`)
@@ -128,45 +183,8 @@ export async function getPlayer(walletAddress: string): Promise<Player | null> {
     const stored = localStorage.getItem(`player_${walletAddress}`)
     return stored ? JSON.parse(stored) : null
   }
-}
 
-export async function getLeaderboard(type = "total_resources", limit = 10): Promise<LeaderboardEntry[]> {
-  try {
-    if (isSupabaseConfigured()) {
-      return await supabaseService.getLeaderboard(type, limit)
-    } else {
-      // Return empty leaderboard for localStorage mode
-      return []
-    }
-  } catch (error) {
-    console.error("Failed to get leaderboard:", error)
-    return []
-  }
-}
-
-export async function createGameSession(walletAddress: string): Promise<string> {
-  try {
-    if (isSupabaseConfigured()) {
-      return await supabaseService.createGameSession(walletAddress)
-    } else {
-      // Generate local session ID
-      return `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    }
-  } catch (error) {
-    console.error("Failed to create game session:", error)
-    return `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  }
-}
-
-export async function endGameSession(sessionId: string, stats: any): Promise<void> {
-  try {
-    if (isSupabaseConfigured()) {
-      await supabaseService.endGameSession(sessionId, stats)
-    }
-    // For localStorage mode, we don't persist session data
-  } catch (error) {
-    console.error("Failed to end game session:", error)
-  }
+  return null
 }
 
 // Legacy functions for backward compatibility
@@ -174,29 +192,8 @@ export async function getUserByWallet(walletAddress: string) {
   return await getPlayer(walletAddress)
 }
 
-export async function createUser(userData: any) {
-  if (isSupabaseConfigured()) {
-    return await supabaseService.createUser(userData)
-  }
-  throw new Error("Supabase not available")
-}
-
-export async function updateUser(walletAddress: string, updateData: any) {
-  if (isSupabaseConfigured()) {
-    return await supabaseService.updateUser(walletAddress, updateData)
-  }
-  throw new Error("Supabase not available")
-}
-
 export async function getPlayerProgress(walletAddress: string) {
   return await getPlayer(walletAddress)
-}
-
-export async function createPlayerProgress(walletAddress: string, initialData: any = {}) {
-  if (isSupabaseConfigured()) {
-    return await supabaseService.createPlayerProgress(walletAddress, initialData)
-  }
-  throw new Error("Supabase not available")
 }
 
 export async function updatePlayerProgress(walletAddress: string, updateData: any) {
@@ -204,28 +201,102 @@ export async function updatePlayerProgress(walletAddress: string, updateData: an
   if (player) {
     const updatedPlayer = { ...player, ...updateData }
     await savePlayer(updatedPlayer)
-    return { acknowledged: true }
+    return updatedPlayer
   }
   throw new Error("Player not found")
 }
 
-export async function getActiveGameSessions() {
+export async function createUser(userData: any) {
   if (isSupabaseConfigured()) {
-    return await supabaseService.getActiveGameSessions()
-  }
-  return []
-}
+    const supabase = createSupabaseClient()
+    const { data, error } = await supabase
+      .from("users")
+      .insert({
+        wallet_address: userData.walletAddress,
+        username: userData.username,
+        created_at: new Date().toISOString(),
+      })
+      .select()
+      .single()
 
-export async function updateLeaderboard(category: string, period: string, rankings: any[]) {
-  if (isSupabaseConfigured()) {
-    return await supabaseService.updateLeaderboard(category, period, rankings)
+    if (error) throw error
+    return data
   }
   throw new Error("Supabase not available")
 }
 
-export async function logGameEvent(eventData: any) {
+export async function updateUser(walletAddress: string, updateData: any) {
   if (isSupabaseConfigured()) {
-    return await supabaseService.logGameEvent(eventData)
+    const supabase = createSupabaseClient()
+    const { data, error } = await supabase
+      .from("users")
+      .update({
+        username: updateData.username,
+        last_login: new Date().toISOString(),
+      })
+      .eq("wallet_address", walletAddress)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
   }
+  throw new Error("Supabase not available")
+}
+
+export async function createPlayerProgress(walletAddress: string, initialData: any = {}) {
+  const defaultData = {
+    walletAddress,
+    currentTier: 1,
+    selectedSubmarine: 1,
+    purchasedSubmarines: [1],
+    resources: {
+      nickel: 150,
+      cobalt: 75,
+      copper: 75,
+      manganese: 40,
+    },
+    balance: 500,
+    playerStats: {
+      health: 100,
+      energy: 100,
+      capacity: { nickel: 0, cobalt: 0, copper: 0, manganese: 0 },
+      maxCapacity: { nickel: 100, cobalt: 50, copper: 50, manganese: 25 },
+      depth: 1000,
+      speed: 1,
+      miningRate: 1,
+      tier: 1,
+    },
+    position: { x: 500, y: 500, rotation: 0 },
+    ...initialData,
+  }
+
+  await savePlayer(defaultData)
+  return { result: { acknowledged: true }, playerData: defaultData }
+}
+
+// Stub functions for features not yet implemented
+export async function getLeaderboard(type = "total_resources", limit = 10) {
+  return []
+}
+
+export async function createGameSession(walletAddress: string) {
+  return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+}
+
+export async function endGameSession(sessionId: string, stats: any) {
+  // Not implemented yet
+}
+
+export async function getActiveGameSessions() {
+  return []
+}
+
+export async function updateLeaderboard(category: string, period: string, rankings: any[]) {
+  // Not implemented yet
+}
+
+export async function logGameEvent(eventData: any) {
+  // Not implemented yet
   return null
 }
