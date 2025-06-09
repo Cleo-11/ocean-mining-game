@@ -1,9 +1,9 @@
 import { createClient } from "@supabase/supabase-js"
 
 // Capture env vars
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
+const SUPABASE_URL = https://crwkgwghgkypxcoxefid.supabase.co
+const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyd2tnd2doZ2t5cHhjb3hlZmlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkxMTAwMTksImV4cCI6MjA2NDY4NjAxOX0.gW1d_fcNW24EUU0HZOrc70FlGyjpwcCTKDGB-MjRcxM
+const SUPABASE_SERVICE_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyd2tnd2doZ2t5cHhjb3hlZmlkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0OTExMDAxOSwiZXhwIjoyMDY0Njg2MDE5fQ.AZnmLQN7AQR43owZ_vPyVm5lnI39bTrp97f-xRamqQc
 
 // Reusable client
 let supabaseClient: ReturnType<typeof createClient> | null = null

@@ -1,7 +1,8 @@
 let isInitialized = false
 
 // ✅ Capture env vars at build time
-const MORALIS_API_KEY = process.env.NEXT_PUBLIC_MORALIS_API_KEY
+const MORALIS_API_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6Ijc4MWNmZTU2LWRmZTQtNGIwMS1hZDBlLTg1NDI1NjM0NjFlZiIsIm9yZ0lkIjoiNDUxMDg0IiwidXNlcklkIjoiNDY0MTMwIiwidHlwZUlkIjoiNjc2MzNmZmUtZmUxOS00MDk3LWFkYTAtYjM5NDFlM2Y1NWNlIiwidHlwZSI6IlBST0pFQ1QiLCJpYXQiOjE3NDkxMTEwNDQsImV4cCI6NDkwNDg3MTA0NH0.vHxMikx-DzgJ8M3cbzWgKUlz9_1qA4zB9ShrVepMU4M
+
 
 export async function initializeMoralis() {
   if (isInitialized) return
